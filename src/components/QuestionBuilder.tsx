@@ -13,20 +13,29 @@ interface QuestionBuilderProps {
 
 export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel }) => {
   const addQuestion = useFormStore((state) => state.addQuestion);
-  const [questionText, setQuestionText] = useState('');
-  const [options, setOptions] = useState<string[]>(['']);
+  const existingQuestion = useFormStore((state) => 
+    state.form.questions.find(q => q.type === type)
+  );
+  
+  const [questionText, setQuestionText] = useState(existingQuestion?.question || '');
+  const [options, setOptions] = useState<string[]>(
+    existingQuestion?.options || ['']
+  );
+  const questionId = useState(() => existingQuestion?.id || Date.now().toString())[0];
 
   // Auto-save when question text or options change
   useEffect(() => {
     if (questionText.trim()) {
       const newQuestion: Partial<FormQuestion> = {
+        id: questionId,
         type,
         question: questionText,
         options: type === 'SINGLE_SELECT' ? options.filter(opt => opt.trim() !== '') : undefined,
+        sequence: 0
       };
       addQuestion(newQuestion);
     }
-  }, [questionText, options, type, addQuestion]);
+  }, [questionText, options, type, questionId, addQuestion]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -47,10 +56,10 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel
 
         {type === 'SINGLE_SELECT' && (
           <SingleSelect 
-            options={options} 
-            setOptions={setOptions}
             questionText={questionText}
             setQuestionText={setQuestionText}
+            options={options}
+            setOptions={setOptions}
           />
         )}
 

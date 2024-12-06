@@ -14,7 +14,7 @@ export const SingleSelect: React.FC<SingleSelectProps> = ({
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
     newOptions[index] = value;
-    setOptions(newOptions.filter(opt => opt.trim() !== '')); // Auto-remove empty options
+    setOptions(newOptions);
   };
 
   return (
@@ -41,12 +41,8 @@ export const SingleSelect: React.FC<SingleSelectProps> = ({
               className="flex-1 px-3 py-2 border rounded-md"
               value={option}
               onChange={(e) => handleOptionChange(index, e.target.value)}
-              onBlur={() => {
-                // Clean up empty options on blur
-                setOptions(options.filter(opt => opt.trim() !== ''));
-              }}
             />
-            {index === options.length - 1 && option.trim() !== '' && (
+            {index === options.length - 1 && (
               <button
                 onClick={() => setOptions([...options, ''])}
                 className="p-2 text-blue-500 hover:bg-blue-50 rounded-full"

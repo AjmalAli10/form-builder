@@ -5,11 +5,14 @@ import { FormHeader } from '../../components/FormHeader';
 import { FormQuestion } from '../../types/form';
 import { PreviewQuestion } from '../../components/preview/PreviewQuestion';
 import { LoadingState } from '../../components/LoadingState';
+import { useRouter } from 'next/navigation';
 
 export default function PreviewPage() {
   const [isHydrated, setIsHydrated] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const form = useFormStore((state) => state.form);
   const updateAnswer = useFormStore((state) => state.updateAnswer);
+  const router = useRouter();
 
   useEffect(() => {
     setIsHydrated(true);
@@ -25,13 +28,26 @@ export default function PreviewPage() {
     return Math.round((answeredQuestions / totalQuestions) * 100);
   };
 
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log('Form submitted:', form);
+  const handleSubmit = async () => {
+    try {
+      // Add API call here to submit form
+      setShowSuccess(true);
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
+      {showSuccess && (
+        <div className="fixed top-4 right-4 bg-green-100 text-green-700 px-4 py-2 rounded-md shadow-sm">
+          Form submitted successfully!
+        </div>
+      )}
+      
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-6">
           <FormHeader isPreview />
@@ -53,7 +69,7 @@ export default function PreviewPage() {
               <PreviewQuestion
                 key={question.id}
                 question={question}
-                onAnswer={(answer) => updateAnswer(question.id, answer)}
+                onChange={(value) => updateAnswer(question.id, value)}
               />
             ))}
           </div>

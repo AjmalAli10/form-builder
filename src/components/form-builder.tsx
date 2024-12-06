@@ -5,26 +5,50 @@ import { QuestionBuilder } from "./QuestionBuilder";
 import { FormHeader } from "./FormHeader";
 import { InputTypeDropdown } from "./InputTypeDropdown";
 import { QuestionType } from "@/types/form";
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 export default function FormBuilder() {
-  const { form } = useFormStore();
+  const { form, selectedTypes } = useFormStore();
+  const addSelectedType = useFormStore((state) => state.addSelectedType);
+  const removeSelectedType = useFormStore((state) => state.removeSelectedType);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState<QuestionType[]>([]);
-  console.log(form);
+  const router = useRouter();
+  const saveDraft = useFormStore((state) => state.saveDraft);
+  const loadDraft = useFormStore((state) => state.loadDraft);
+  const drafts = useFormStore((state) => state.drafts);
+  const [showDrafts, setShowDrafts] = useState(false);
+
+  console.log("form", form);
   const handleTypeSelect = (type: QuestionType) => {
-    setSelectedTypes((prev) => [...prev, type]);
+    addSelectedType(type);
     setIsDropdownOpen(false);
   };
 
   const handleCancel = (type: QuestionType) => {
-    setSelectedTypes((prev) => prev.filter((t) => t !== type));
+    removeSelectedType(type);
   };
+
+  const handlePublish = async () => {
+    try {
+      // Add API call here to save form data if needed
+      router.push('/preview');
+    } catch (error) {
+      console.error('Error publishing form:', error);
+    }
+  };
+
+  const handleSaveAsDraft = () => {
+    saveDraft();
+    toast.success('Form saved as draft');
+  };
+
   return (
     <div className="w-full mx-auto py-8 px-4">
       <FormHeader />
 
       <div className="">
-{selectedTypes.map((type, index) => (
+        {selectedTypes.map((type, index) => (
           <QuestionBuilder
             key={index}
             type={type}
@@ -60,10 +84,44 @@ export default function FormBuilder() {
       </div>
 
       <div className="mt-6 flex justify-between">
-        <button className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md flex items-center gap-2">
-          Save as Draft
-        </button>
-        <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+        <div className="relative">
+          <button 
+            onClick={handleSaveAsDraft}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md flex items-center gap-2"
+          >
+            <span>Save as Draft</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          {showDrafts && drafts.length > 0 && (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg border">
+              <div className="p-2">
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Saved Drafts</h3>
+                <div className="space-y-1">
+                  {drafts.map((draft) => (
+                    <button
+                      key={draft.id}
+                      onClick={() => {
+                        loadDraft(draft.id);
+                        setShowDrafts(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
+                    >
+                      {draft.title || 'Untitled Form'} - {new Date(Number(draft.id)).toLocaleDateString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button 
+          onClick={handlePublish}
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+        >
           Publish form
         </button>
       </div>

@@ -12,8 +12,8 @@ export interface FormQuestion {
   description?: string;
   options?: string[];
   required?: boolean;
-  answer?: string | number;
   sequence: number;
+  answer?: string | number | string[];
 }
 
 export interface Form {
