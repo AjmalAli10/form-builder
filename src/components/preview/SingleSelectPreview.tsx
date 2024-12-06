@@ -12,7 +12,7 @@ export const SingleSelectPreview: React.FC<SingleSelectPreviewProps> = ({
   return (
     <div className="space-y-2">
       {options.map((option, index) => (
-        <label key={index} className="flex items-center gap-2 cursor-pointer">
+        <label key={`${option}-${index}`} className="flex items-center gap-2 cursor-pointer">
           <input
             type="radio"
             className="w-4 h-4 text-blue-500"

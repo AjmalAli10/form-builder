@@ -1,13 +1,9 @@
 interface SingleSelectProps {
-  questionText: string;
-  setQuestionText: (value: string) => void;
   options: string[];
   setOptions: (options: string[]) => void;
 }
 
 export const SingleSelect: React.FC<SingleSelectProps> = ({
-  questionText,
-  setQuestionText,
   options,
   setOptions,
 }) => {
@@ -19,14 +15,6 @@ export const SingleSelect: React.FC<SingleSelectProps> = ({
 
   return (
     <div className="space-y-4">
-      <input
-        type="text"
-        placeholder="Write a question"
-        className="w-full text-lg font-medium focus:outline-none"
-        value={questionText}
-        onChange={(e) => setQuestionText(e.target.value)}
-      />
-
       <div className="space-y-2">
         {options.map((option, index) => (
           <div key={index} className="flex items-center gap-2">

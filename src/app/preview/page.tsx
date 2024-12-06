@@ -24,6 +24,8 @@ export default function PreviewPage() {
 
   const calculateCompletion = () => {
     const totalQuestions = form.questions.length;
+    if (totalQuestions === 0) return 0;
+    
     const answeredQuestions = form.questions.filter((q: FormQuestion) => q.answer).length;
     return Math.round((answeredQuestions / totalQuestions) * 100);
   };
@@ -67,7 +69,7 @@ export default function PreviewPage() {
           <div className="space-y-6">
             {form.questions.map((question: FormQuestion) => (
               <PreviewQuestion
-                key={question.id}
+                key={`question-${question.id}`}
                 question={question}
                 onChange={(value) => updateAnswer(question.id, value)}
               />

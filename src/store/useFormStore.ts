@@ -25,6 +25,7 @@ interface FormState {
   saveDraft: () => void;
   loadDraft: (draftId: string) => void;
   deleteDraft: (draftId: string) => void;
+  reorderQuestions: (sourceIndex: number, destinationIndex: number) => void;
 }
 
 interface FormActions {
@@ -82,7 +83,7 @@ export const useFormStore = create<FormState & FormActions>()(
           const newSequence = state.form.lastSequence + 1;
           const newQuestion: FormQuestion = {
             id: Date.now().toString(),
-            type: "SHORT_ANSWER",
+            type: question.type || "SHORT_ANSWER",
             question: "",
             sequence: newSequence,
             ...question,
@@ -206,6 +207,28 @@ export const useFormStore = create<FormState & FormActions>()(
             ),
           },
         })),
+
+      reorderQuestions: (sourceIndex: number, destinationIndex: number) =>
+        set((state) => {
+          const newSelectedTypes = Array.from(state.selectedTypes);
+          const [removed] = newSelectedTypes.splice(sourceIndex, 1);
+          newSelectedTypes.splice(destinationIndex, 0, removed);
+
+          const newQuestions = Array.from(state.form.questions);
+          const [removedQuestion] = newQuestions.splice(sourceIndex, 1);
+          newQuestions.splice(destinationIndex, 0, removedQuestion);
+
+          return {
+            selectedTypes: newSelectedTypes,
+            form: {
+              ...state.form,
+              questions: newQuestions.map((q, idx) => ({
+                ...q,
+                sequence: idx,
+              })),
+            },
+          };
+        }),
     }),
     {
       name: "form-storage",

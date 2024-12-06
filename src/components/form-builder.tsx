@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 
 export default function FormBuilder() {
-  const { form, selectedTypes } = useFormStore();
+  const { selectedTypes } = useFormStore();
   const addSelectedType = useFormStore((state) => state.addSelectedType);
   const removeSelectedType = useFormStore((state) => state.removeSelectedType);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,7 +19,6 @@ export default function FormBuilder() {
   const drafts = useFormStore((state) => state.drafts);
   const [showDrafts, setShowDrafts] = useState(false);
 
-  console.log("form", form);
   const handleTypeSelect = (type: QuestionType) => {
     addSelectedType(type);
     setIsDropdownOpen(false);
@@ -31,7 +30,6 @@ export default function FormBuilder() {
 
   const handlePublish = async () => {
     try {
-      // Add API call here to save form data if needed
       router.push('/preview');
     } catch (error) {
       console.error('Error publishing form:', error);
@@ -47,7 +45,7 @@ export default function FormBuilder() {
     <div className="w-full mx-auto py-8 px-4">
       <FormHeader />
 
-      <div className="">
+      <div className="space-y-4">
         {selectedTypes.map((type, index) => (
           <QuestionBuilder
             key={index}
@@ -61,24 +59,14 @@ export default function FormBuilder() {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="w-full py-4 px-6 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 flex items-center justify-center gap-2"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             Add Question
           </button>
           <InputTypeDropdown
-              isOpen={isDropdownOpen}
-              onSelect={handleTypeSelect}
+            isOpen={isDropdownOpen}
+            onSelect={handleTypeSelect}
           />
         </div>
       </div>
