@@ -25,12 +25,14 @@ export default function PreviewPage() {
   }
 
   const calculateCompletion = () => {
-    const totalQuestions = form.questions.length;
+    const validQuestions = form.questions.filter(q => q.question.trim());
+    const totalQuestions = validQuestions.length;
     if (totalQuestions === 0) return 0;
     
-    const answeredQuestions = form.questions.filter((q: FormQuestion) => q.answer).length;
+    const answeredQuestions = validQuestions.filter((q: FormQuestion) => q.answer).length;
     return Math.round((answeredQuestions / totalQuestions) * 100);
   };
+
 
   const handleSubmit = async () => {
     try {

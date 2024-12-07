@@ -1,3 +1,4 @@
+import { QuestionType } from "@/types/form";
 import { type ComponentType } from "react";
 
 export interface BaseQuestionProps {
@@ -43,3 +44,10 @@ export type QuestionTypeConfig = Record<
   QuestionVariant,
   SingleSelectType | OtherCustomType | StandardQuestionType
 >;
+
+export interface InputTypeDropdownProps {
+  onSelect: (type: QuestionType) => void;
+  isOpen: boolean;
+  className?: string;
+  showHeader?: boolean;
+}

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
+import { InputTypeDropdown } from "@/components/InputTypeDropdown";
 
 export default function FormBuilder() {
   const form = useFormStore((state) => state.form);
@@ -64,42 +65,6 @@ export default function FormBuilder() {
     toast.success('Form saved as draft');
   };
 
-  const getTypeIcon = (type: QuestionType) => {
-    switch (type) {
-      case 'SHORT_ANSWER':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-        );
-      case 'LONG_ANSWER':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-          </svg>
-        );
-      case 'SINGLE_SELECT':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" strokeWidth={2} />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        );
-      case 'NUMBER':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-          </svg>
-        );
-      case 'URL':
-        return (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-        );
-    }
-  };
-
   if (!enabled) {
     return null;
   }
@@ -153,27 +118,12 @@ export default function FormBuilder() {
                 </svg>
                 Add Question
               </button>
-              {isDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-md shadow-lg border border-[#E1E4E8] z-50">
-                  <div className="p-2">
-                    <div className="space-y-1">
-                      {['SHORT_ANSWER', 'LONG_ANSWER', 'SINGLE_SELECT', 'NUMBER', 'URL'].map((type) => (
-                        <button
-                          key={type}
-                          onClick={() => {
-                            handleTypeSelect(type as QuestionType);
-                            setIsDropdownOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md flex items-center gap-2"
-                        >
-                          {getTypeIcon(type as QuestionType)}
-                          {type.split('_').map(word => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <InputTypeDropdown
+                isOpen={isDropdownOpen}
+                onSelect={handleTypeSelect}
+                showHeader={false}
+                className="w-64 left-0 top-full mt-1"
+              />
             </div>
           </div>
         </div>
