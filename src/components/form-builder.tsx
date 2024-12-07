@@ -107,8 +107,8 @@ export default function FormBuilder() {
   const sortedQuestions = [...form.questions].sort((a, b) => a.sequence - b.sequence);
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      <div className="bg-white border-x border-[#E1E4E8] relative">
+
+      <>
         <FormHeader />
         
         <div className="p-6 pb-[80px]">
@@ -223,7 +223,6 @@ export default function FormBuilder() {
             Publish form
           </button>
         </div>
-      </div>
-    </div>
+    </>
   );
 }
