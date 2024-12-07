@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-Deployed Link : [`https://form-builder-creator.vercel.app`]
+Deployed Link : (https://form-builder-creator.vercel.app)
 
 First, run the development server:
 
