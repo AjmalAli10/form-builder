@@ -4,7 +4,7 @@ import { useFormStore } from '@/store/useFormStore';
 import { QuestionBuilder } from "./QuestionBuilder";
 import { FormHeader } from "./FormHeader";
 import { InputTypeDropdown } from "./InputTypeDropdown";
-import { QuestionType } from "@/types/form";
+import { QuestionType, FormQuestion } from "@/types/form";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { DragDropContext, Draggable, DropResult, DroppableProvided } from "react-beautiful-dnd";
@@ -15,6 +15,7 @@ export default function FormBuilder() {
   const addSelectedType = useFormStore((state) => state.addSelectedType);
   const removeSelectedType = useFormStore((state) => state.removeSelectedType);
   const reorderQuestions = useFormStore((state) => state.reorderQuestions);
+  const updateQuestion = useFormStore((state) => state.updateQuestion);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
   const saveDraft = useFormStore((state) => state.saveDraft);
@@ -47,6 +48,10 @@ export default function FormBuilder() {
     removeSelectedType(type);
   };
 
+  const handleQuestionChange = (questionId: string, updates: Partial<FormQuestion>) => {
+    updateQuestion(questionId, updates);
+  };
+
   const handlePublish = async () => {
     try {
       router.push('/preview');
@@ -71,12 +76,15 @@ export default function FormBuilder() {
       <FormHeader />
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <StrictModeDroppable droppableId="questions">
+        <StrictModeDroppable 
+          droppableId="questions"
+          direction="vertical"
+        >
           {(provided: DroppableProvided) => (
             <div 
               {...provided.droppableProps}
               ref={provided.innerRef}
-              className="flex flex-col gap-4 transition-all"
+              className="flex flex-col gap-4"
             >
               {sortedQuestions.map((question, index) => (
                 <Draggable 
@@ -90,30 +98,18 @@ export default function FormBuilder() {
                       {...provided.draggableProps}
                       style={{
                         ...provided.draggableProps.style,
-                        transition: snapshot.isDragging ? provided.draggableProps.style?.transition : 'all 0.2s ease',
-                        transform: provided.draggableProps.style?.transform,
-                        margin: 0
+                        // transformOrigin: 'top left',
+                        // transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)'
                       }}
-                      className={`bg-white rounded-lg shadow-sm border ${
-                        snapshot.isDragging ? 'shadow-lg' : ''
-                      }`}
+                      className={`${snapshot.isDragging ? 'shadow-lg z-50' : ''}`}
                     >
-                      <div className="flex items-center gap-2 p-2">
-                        <div 
-                          {...provided.dragHandleProps}
-                          className="cursor-move p-2 hover:bg-gray-100 rounded-lg"
-                        >
-                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-                          </svg>
-                        </div>
-                        <div className="flex-1">
-                          <QuestionBuilder
-                            type={question.type}
-                            onCancel={() => handleCancel(question.type)}
-                          />
-                        </div>
-                      </div>
+                      <QuestionBuilder
+                        type={question.type}
+                        onCancel={() => handleCancel(question.type)}
+                        dragHandleProps={provided.dragHandleProps}
+                        question={question}
+                        onQuestionChange={(updates) => handleQuestionChange(question.id, updates)}
+                      />
                     </div>
                   )}
                 </Draggable>

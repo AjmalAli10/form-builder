@@ -1,67 +1,42 @@
 'use client'
 import { QuestionType, FormQuestion } from '../types/form';
-import { useState, useEffect } from 'react';
-import { useFormStore } from '../store/useFormStore';
+import { useState } from 'react';
 import { ShortAnswer } from './questions/ShortAnswer';
 import { LongAnswer } from './questions/LongAnswer';
 import { SingleSelect } from './questions/SingleSelect';
 import { QuestionMenu } from './QuestionMenu';
+import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
 
 interface QuestionBuilderProps {
   type: QuestionType;
   onCancel: () => void;
+  dragHandleProps?: DraggableProvidedDragHandleProps | null;
+  question: FormQuestion;
+  onQuestionChange: (question: Partial<FormQuestion>) => void;
 }
 
-export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel }) => {
-  const addQuestion = useFormStore((state) => state.addQuestion);
-  const removeSelectedType = useFormStore((state) => state.removeSelectedType);
-  const addSelectedType = useFormStore((state) => state.addSelectedType);
-  const existingQuestion = useFormStore((state) => 
-    state.form.questions.find(q => q.type === type)
-  );
-  
-  const [questionText, setQuestionText] = useState(existingQuestion?.question || '');
-  const [options, setOptions] = useState<string[]>(
-    existingQuestion?.options || ['']
-  );
-  const [questionId, setQuestionId] = useState(() => existingQuestion?.id || Date.now().toString());
+export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ 
+  type, 
+  onCancel,
+  dragHandleProps,
+  question,
+  onQuestionChange
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Auto-save when question text or options change
-  useEffect(() => {
-    if (questionText.trim()) {
-      const newQuestion: Partial<FormQuestion> = {
-        id: questionId,
-        type,
-        question: questionText,
-        options: type === 'SINGLE_SELECT' ? options.filter(opt => opt.trim() !== '') : undefined,
-        sequence: 0
-      };
-      addQuestion(newQuestion);
-    }
-  }, [questionText, options, type, questionId, addQuestion]);
+  const handleQuestionTextChange = (text: string) => {
+    onQuestionChange({ ...question, question: text });
+  };
+
+  const handleOptionsChange = (newOptions: string[]) => {
+    onQuestionChange({ ...question, options: newOptions });
+  };
 
   const handleTypeChange = (newType: QuestionType) => {
-    // Remove the old question type from selectedTypes
-    removeSelectedType(type);
-    // Add the new question type
-    addSelectedType(newType);
-    
-    // Reset question data
-    setQuestionText('');
-    setOptions(['']);
-    
-    // Generate new question ID
-    const newQuestionId = Date.now().toString();
-    setQuestionId(newQuestionId);
-    
-    // Add new empty question with new type
-    addQuestion({
-      id: newQuestionId,
+    onQuestionChange({
+      ...question,
       type: newType,
-      question: '',
       options: newType === 'SINGLE_SELECT' ? [''] : undefined,
-      sequence: 0
     });
     setIsMenuOpen(false);
   };
@@ -103,21 +78,20 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6 group hover:bg-[#FAFBFC] transition-colors">
+    <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="space-y-4">
-        {/* Top row with input and controls */}
+        {/* All controls in single line */}
         <div className="flex items-center gap-3">
-
           {/* Question input */}
           <input
             type="text"
             placeholder="Write a question"
-            className="flex-1 text-lg font-medium focus:outline-none group-hover:bg-[#FAFBFC] transition-colors"
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
+            className="flex-1 text-lg font-medium focus:outline-none bg-transparent"
+            value={question.question}
+            onChange={(e) => handleQuestionTextChange(e.target.value)}
           />
 
-          {/* Controls group */}
+          {/* Right side controls group */}
           <div className="flex items-center gap-2">
             {/* Question type selector */}
             <div className="relative">
@@ -137,6 +111,21 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel
               />
             </div>
 
+            {/* Drag handle */}
+            {dragHandleProps && (
+              <div
+                {...dragHandleProps}
+                className="p-2 text-gray-400 hover:bg-gray-100 rounded-md cursor-move"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <circle cx="4" cy="4" r="1.5" />
+                  <circle cx="12" cy="4" r="1.5" />
+                  <circle cx="4" cy="12" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                </svg>
+              </div>
+            )}
+
             {/* Cancel button */}
             <button
               onClick={onCancel}
@@ -153,8 +142,8 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ type, onCancel
         <div>
           {type === 'SINGLE_SELECT' && (
             <SingleSelect 
-              options={options}
-              setOptions={setOptions}
+              options={question.options || ['']}
+              setOptions={handleOptionsChange}
             />
           )}
           {type === 'SHORT_ANSWER' && <ShortAnswer />}
