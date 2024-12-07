@@ -6,6 +6,12 @@ interface FormState {
   form: Form;
   selectedTypes: QuestionType[];
   drafts: Form[];
+  submissions: Array<{
+    id: string;
+    title: string;
+    questions: FormQuestion[];
+    submittedAt: string;
+  }>;
   setTitle: (title: string) => void;
   addSelectedType: (type: QuestionType) => void;
   removeSelectedType: (type: QuestionType) => void;
@@ -18,6 +24,7 @@ interface FormState {
     questionId: string,
     answer: string | number | string[]
   ) => void;
+  submitForm: () => void;
 }
 
 const initialForm: Form = {
@@ -33,6 +40,7 @@ export const useFormStore = create<FormState>()(
       form: initialForm,
       selectedTypes: [],
       drafts: [],
+      submissions: [],
 
       setTitle: (title) =>
         set((state) => ({
@@ -140,6 +148,25 @@ export const useFormStore = create<FormState>()(
             questions: state.form.questions.map((q) =>
               q.id === questionId ? { ...q, answer } : q
             ),
+          },
+        })),
+
+      submitForm: () =>
+        set((state) => ({
+          submissions: [
+            ...state.submissions,
+            {
+              id: Math.random().toString(36).substring(7),
+              title: state.form.title,
+              questions: state.form.questions,
+              submittedAt: new Date().toISOString(),
+            },
+          ],
+          form: {
+            id: Math.random().toString(36).substring(7),
+            title: "",
+            questions: [],
+            lastSequence: 0,
           },
         })),
     }),

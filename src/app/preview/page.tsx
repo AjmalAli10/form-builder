@@ -10,8 +10,10 @@ import { useRouter } from 'next/navigation';
 export default function PreviewPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useFormStore((state) => state.form);
   const updateAnswer = useFormStore((state) => state.updateAnswer);
+  const submitForm = useFormStore((state) => state.submitForm);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,17 +34,20 @@ export default function PreviewPage() {
 
   const handleSubmit = async () => {
     try {
-      // Add API call here to submit form
+      setIsSubmitting(true);
       setShowSuccess(true);
-      setTimeout(() => {
-        router.push('/');
-      }, 2000);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      router.push('/submissions');
+      submitForm();
     } catch (error) {
       console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const hasQuestions = form.questions.length > 0;
+  const hasAnswers = form.questions.some(q => q.answer);
   const completion = calculateCompletion();
 
   return (
@@ -88,9 +93,24 @@ export default function PreviewPage() {
               <div className="mt-6">
                 <button
                   onClick={handleSubmit}
-                  className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                  disabled={!hasAnswers || isSubmitting}
+                  className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+                    hasAnswers && !isSubmitting
+                      ? 'bg-green-500 text-white hover:bg-green-600' 
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
-                  Submit
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit'
+                  )}
                 </button>
               </div>
             </>
