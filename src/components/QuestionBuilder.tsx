@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { ShortAnswer } from './questions/ShortAnswer';
 import { LongAnswer } from './questions/LongAnswer';
 import { SingleSelect } from './questions/SingleSelect';
+import { Number } from './questions/Number';
+import { URL } from './questions/URL';
 import { QuestionMenu } from './QuestionMenu';
 import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
+import { BaseInput } from './shared/BaseInput';
 
 interface QuestionBuilderProps {
   type: QuestionType;
@@ -14,6 +17,66 @@ interface QuestionBuilderProps {
   question: FormQuestion;
   onQuestionChange: (question: Partial<FormQuestion>) => void;
 }
+
+interface BaseQuestionProps {
+  isPreview?: boolean;
+}
+
+interface SingleSelectQuestionProps extends BaseQuestionProps {
+  options: string[];
+  setOptions: (options: string[]) => void;
+}
+
+interface BaseQuestionType<T extends BaseQuestionProps = BaseQuestionProps> {
+  component: React.ComponentType<T>;
+}
+
+interface SingleSelectType extends BaseQuestionType<SingleSelectQuestionProps> {
+  isCustom: true;
+  type: 'single-select';
+}
+
+interface OtherCustomType extends BaseQuestionType<BaseQuestionProps> {
+  isCustom: true;
+  type: 'other';
+}
+
+interface StandardQuestionType extends BaseQuestionType<BaseQuestionProps> {
+  type: 'text' | 'number' | 'url';
+  placeholder: string;
+}
+
+type QuestionVariant = 'SINGLE_SELECT' | 'SHORT_ANSWER' | 'LONG_ANSWER' | 'NUMBER' | 'URL';
+
+type QuestionTypeConfig = Record<QuestionVariant, SingleSelectType | OtherCustomType | StandardQuestionType>;
+
+const QUESTION_TYPES: QuestionTypeConfig = {
+  SINGLE_SELECT: {
+    component: SingleSelect,
+    isCustom: true,
+    type: 'single-select'
+  },
+  LONG_ANSWER: {
+    component: LongAnswer,
+    isCustom: true,
+    type: 'other'
+  },
+  SHORT_ANSWER: {
+    component: ShortAnswer,
+    type: 'text',
+    placeholder: 'Short answer text'
+  },
+  NUMBER: {
+    component: Number,
+    type: 'number',
+    placeholder: 'Number input'
+  },
+  URL: {
+    component: URL,
+    type: 'url',
+    placeholder: 'URL input'
+  }
+};
 
 export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({ 
   type, 
@@ -32,7 +95,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
     onQuestionChange({ ...question, options: newOptions });
   };
 
-  const handleTypeChange = (newType: QuestionType) => {
+  const handleTypeChange = (newType: QuestionVariant) => {
     onQuestionChange({
       ...question,
       type: newType,
@@ -41,7 +104,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
     setIsMenuOpen(false);
   };
 
-  const getTypeIcon = (type: QuestionType) => {
+  const getTypeIcon = (type: QuestionVariant) => {
     switch (type) {
       case 'SHORT_ANSWER':
         return (
@@ -77,8 +140,35 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
     }
   };
 
+  const renderQuestionInput = () => {
+    const questionType = QUESTION_TYPES[type];
+    if (!questionType) return null;
+
+    if ('isCustom' in questionType) {
+      if (questionType.type === 'single-select') {
+        const Component = questionType.component;
+        return (
+          <Component 
+            options={question.options || ['']}
+            setOptions={handleOptionsChange}
+          />
+        );
+      }
+      const Component = questionType.component as React.ComponentType<BaseQuestionProps>;
+      return <Component isPreview={false} />;
+    }
+
+    return (
+      <BaseInput
+        type={questionType.type}
+        placeholder={questionType.placeholder}
+        isPreview={false}
+      />
+    );
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
+    <div className="bg-gray-00 border-gray-200 rounded-2xl border  p-4">
       <div className="space-y-4">
         {/* All controls in single line */}
         <div className="flex items-center gap-3">
@@ -86,7 +176,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
           <input
             type="text"
             placeholder="Write a question"
-            className="flex-1 text-lg font-medium focus:outline-none bg-transparent"
+            className="flex-1 text-sm font-semibold focus:outline-none bg-transparent leading-5 font-inter text-left underline-offset-[from-font] decoration-skip-ink-none placeholder:text-[#959DA5] text-[#0D0D0D]"
             value={question.question}
             onChange={(e) => handleQuestionTextChange(e.target.value)}
           />
@@ -140,14 +230,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
 
         {/* Question type specific components */}
         <div>
-          {type === 'SINGLE_SELECT' && (
-            <SingleSelect 
-              options={question.options || ['']}
-              setOptions={handleOptionsChange}
-            />
-          )}
-          {type === 'SHORT_ANSWER' && <ShortAnswer />}
-          {type === 'LONG_ANSWER' && <LongAnswer />}
+          {renderQuestionInput()}
         </div>
       </div>
     </div>

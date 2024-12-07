@@ -38,10 +38,9 @@ export const PreviewQuestion: React.FC<PreviewQuestionProps> = ({
 
   return (
     <div className="space-y-2">
-      <p className="font-medium">{question.question}</p>
-      {question.description && (
-        <p className="text-sm text-gray-600">{question.description}</p>
-      )}
+      <p className="text-sm font-semibold leading-5 text-left text-[#0D0D0D] underline-offset-[from-font] decoration-skip-ink-none">
+        {question.question}
+      </p>
       {renderQuestionInput()}
     </div>
   );

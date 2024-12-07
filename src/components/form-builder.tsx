@@ -136,11 +136,12 @@ export default function FormBuilder() {
         />
       </div>
 
-      <div className="mt-6 flex justify-between">
+      <div className="fixed bottom-0 left-[400px] w-[640px] h-16 px-6 py-4 flex justify-between items-center border-t border-[#E1E4E8] bg-[#F6F8FAE5] backdrop-blur">
         <div className="relative">
           <button 
             onClick={handleSaveAsDraft}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md flex items-center gap-2"
+            disabled={form.questions.length === 0}
+            className="h-8 px-4 py-1.5 rounded-xl flex items-center gap-1 bg-white border border-[#E1E4E8] text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed relative disabled:after:content-[''] disabled:after:absolute disabled:after:inset-0 disabled:after:bg-[#F6F8FAE5]"
           >
             <span>Save as Draft</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,7 +174,8 @@ export default function FormBuilder() {
 
         <button 
           onClick={handlePublish}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          disabled={form.questions.length === 0}
+          className="h-8 px-4 py-1.5 rounded-xl flex items-center gap-1 shadow-[0px_12px_12px_-6px_#00000008,0px_6px_6px_-3px_#00000008,0px_3px_3px_-1.5px_#00000008] bg-[#00AA45] border border-[#1E874B] hover:bg-[#1E874B] text-white disabled:cursor-not-allowed relative disabled:after:content-[''] disabled:after:absolute disabled:after:inset-0 disabled:after:bg-[#F6F8FAE5]"
         >
           Publish form
         </button>
