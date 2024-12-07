@@ -3,15 +3,27 @@ import { useEffect, useState } from 'react';
 import { Droppable, DroppableProps } from 'react-beautiful-dnd';
 
 export const StrictModeDroppable = ({ children, ...props }: DroppableProps) => {
-  const [mounted, setMounted] = useState(false);
+  const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
+    const animation = requestAnimationFrame(() => {
+      setEnabled(true);
+    });
+
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
   }, []);
 
-  if (!mounted) {
-    return null;
+  if (!enabled) {
+    return (
+      <div style={{ visibility: 'hidden' }}>
+        <Droppable {...props} isDropDisabled={true} isCombineEnabled={false} ignoreContainerClipping={false}>
+          {children}
+        </Droppable>
+      </div>
+    );
   }
 
   return (

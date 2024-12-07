@@ -15,6 +15,10 @@ export const PreviewQuestion: React.FC<PreviewQuestionProps> = ({
   question,
   onChange,
 }) => {
+  if (!question.question.trim()) {
+    return null;
+  }
+
   const renderQuestionInput = () => {
     switch (question.type) {
       case 'SHORT_ANSWER':
