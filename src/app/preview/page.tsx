@@ -67,13 +67,16 @@ export default function PreviewPage() {
           </div>
 
           <div className="space-y-6">
-            {form.questions.map((question: FormQuestion) => (
-              <PreviewQuestion
-                key={`question-${question.id}`}
-                question={question}
-                onChange={(value) => updateAnswer(question.id, value)}
-              />
-            ))}
+            {form.questions
+              .slice()
+              .sort((a, b) => a.sequence - b.sequence)
+              .map((question: FormQuestion) => (
+                <PreviewQuestion
+                  key={`question-${question.id}`}
+                  question={question}
+                  onChange={(value) => updateAnswer(question.id, value)}
+                />
+              ))}
           </div>
 
           <div className="mt-6">

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormStore } from '@/store/useFormStore';
 import { QuestionBuilder } from "./QuestionBuilder";
 import { FormHeader } from "./FormHeader";
@@ -7,17 +7,36 @@ import { InputTypeDropdown } from "./InputTypeDropdown";
 import { QuestionType } from "@/types/form";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { DragDropContext, Draggable, DropResult, DroppableProvided } from "react-beautiful-dnd";
+import { StrictModeDroppable } from "./StrictModeDroppable";
 
 export default function FormBuilder() {
-  const { selectedTypes } = useFormStore();
+  const form = useFormStore((state) => state.form);
   const addSelectedType = useFormStore((state) => state.addSelectedType);
   const removeSelectedType = useFormStore((state) => state.removeSelectedType);
+  const reorderQuestions = useFormStore((state) => state.reorderQuestions);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
   const saveDraft = useFormStore((state) => state.saveDraft);
   const loadDraft = useFormStore((state) => state.loadDraft);
   const drafts = useFormStore((state) => state.drafts);
   const [showDrafts, setShowDrafts] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    setEnabled(true);
+  }, []);
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const sourceIndex = result.source.index;
+    const destinationIndex = result.destination.index;
+    
+    if (sourceIndex !== destinationIndex) {
+      reorderQuestions(sourceIndex, destinationIndex);
+    }
+  };
 
   const handleTypeSelect = (type: QuestionType) => {
     addSelectedType(type);
@@ -41,34 +60,84 @@ export default function FormBuilder() {
     toast.success('Form saved as draft');
   };
 
+  if (!enabled) {
+    return null;
+  }
+
+  const sortedQuestions = [...form.questions].sort((a, b) => a.sequence - b.sequence);
+
   return (
     <div className="w-full mx-auto py-8 px-4">
       <FormHeader />
 
-      <div className="space-y-4">
-        {selectedTypes.map((type, index) => (
-          <QuestionBuilder
-            key={index}
-            type={type}
-            onCancel={() => handleCancel(type)}
-          />
-        ))}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <StrictModeDroppable droppableId="questions">
+          {(provided: DroppableProvided) => (
+            <div 
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="flex flex-col gap-4 transition-all"
+            >
+              {sortedQuestions.map((question, index) => (
+                <Draggable 
+                  key={question.id}
+                  draggableId={question.id}
+                  index={index}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        transition: snapshot.isDragging ? provided.draggableProps.style?.transition : 'all 0.2s ease',
+                        transform: provided.draggableProps.style?.transform,
+                        margin: 0
+                      }}
+                      className={`bg-white rounded-lg shadow-sm border ${
+                        snapshot.isDragging ? 'shadow-lg' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 p-2">
+                        <div 
+                          {...provided.dragHandleProps}
+                          className="cursor-move p-2 hover:bg-gray-100 rounded-lg"
+                        >
+                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <QuestionBuilder
+                            type={question.type}
+                            onCancel={() => handleCancel(question.type)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </StrictModeDroppable>
+      </DragDropContext>
 
-        <div className="relative">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full py-4 px-6 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 flex items-center justify-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add Question
-          </button>
-          <InputTypeDropdown
-            isOpen={isDropdownOpen}
-            onSelect={handleTypeSelect}
-          />
-        </div>
+      <div className="relative">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="w-full py-4 px-6 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Add Question
+        </button>
+        <InputTypeDropdown
+          isOpen={isDropdownOpen}
+          onSelect={handleTypeSelect}
+        />
       </div>
 
       <div className="mt-6 flex justify-between">

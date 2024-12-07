@@ -155,20 +155,40 @@ export const useFormStore = create<FormState & FormActions>()(
         })),
 
       addSelectedType: (type: QuestionType) =>
-        set((state) => ({
-          selectedTypes: [...state.selectedTypes, type],
-        })),
+        set((state) => {
+          const newSequence = state.form.questions.length + 1;
+          const newQuestion: FormQuestion = {
+            id: Date.now().toString(),
+            type,
+            question: "",
+            sequence: newSequence,
+          };
+
+          return {
+            selectedTypes: [...state.selectedTypes, type],
+            form: {
+              ...state.form,
+              questions: [...state.form.questions, newQuestion],
+              lastSequence: newSequence,
+            },
+          };
+        }),
 
       removeSelectedType: (type: QuestionType) =>
-        set((state) => ({
-          selectedTypes: state.selectedTypes.filter((t) => t !== type),
-          form: {
-            ...state.form,
-            questions: state.form.questions
-              .filter((q) => q.type !== type)
-              .map((q, idx) => ({ ...q, sequence: idx + 1 })),
-          },
-        })),
+        set((state) => {
+          const updatedQuestions = state.form.questions
+            .filter((q) => q.type !== type)
+            .map((q, idx) => ({ ...q, sequence: idx + 1 }));
+
+          return {
+            selectedTypes: state.selectedTypes.filter((t) => t !== type),
+            form: {
+              ...state.form,
+              questions: updatedQuestions,
+              lastSequence: updatedQuestions.length,
+            },
+          };
+        }),
 
       updateQuestionInput: (questionId, data) =>
         set((state) => ({
@@ -218,14 +238,18 @@ export const useFormStore = create<FormState & FormActions>()(
           const [removedQuestion] = newQuestions.splice(sourceIndex, 1);
           newQuestions.splice(destinationIndex, 0, removedQuestion);
 
+          // Update sequence numbers for all questions
+          const updatedQuestions = newQuestions.map((q, idx) => ({
+            ...q,
+            sequence: idx + 1,
+          }));
+
           return {
             selectedTypes: newSelectedTypes,
             form: {
               ...state.form,
-              questions: newQuestions.map((q, idx) => ({
-                ...q,
-                sequence: idx,
-              })),
+              questions: updatedQuestions,
+              lastSequence: updatedQuestions.length,
             },
           };
         }),
