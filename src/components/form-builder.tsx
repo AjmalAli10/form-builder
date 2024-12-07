@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import { DragDropContext, Draggable, DropResult } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 import { InputTypeDropdown } from "@/components/InputTypeDropdown";
+import Image from "next/image";
 
 export default function FormBuilder() {
   const form = useFormStore((state) => state.form);
@@ -136,7 +137,7 @@ export default function FormBuilder() {
               disabled={form.questions.length === 0}
               className="h-8 px-4 py-1.5 rounded-xl flex items-center gap-1 bg-white border border-[#E1E4E8] text-gray-600 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <img src="/draft-icon.svg" alt="Save as Draft" className="w-4 h-4" />
+              <Image priority={false} unoptimized={true} src="/draft-icon.svg" alt="Save as Draft" className="w-4 h-4" />
               <span>Save as Draft</span>
             </button>
 
