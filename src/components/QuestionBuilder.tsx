@@ -114,10 +114,12 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
               className="p-2 text-gray-400 hover:bg-gray-100 rounded-md cursor-move"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <circle cx="4" cy="4" r="1.5" />
-                <circle cx="12" cy="4" r="1.5" />
-                <circle cx="4" cy="12" r="1.5" />
-                <circle cx="12" cy="12" r="1.5" />
+                <circle cx="4" cy="3" r="1.5" />
+                <circle cx="12" cy="3" r="1.5" />
+                <circle cx="4" cy="8" r="1.5" />
+                <circle cx="12" cy="8" r="1.5" />
+                <circle cx="4" cy="13" r="1.5" />
+                <circle cx="12" cy="13" r="1.5" />
               </svg>
             </div>
           )}
