@@ -13,11 +13,12 @@ export const InputTypeDropdown: React.FC<InputTypeDropdownProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute mt-2 w-64 bg-white rounded-lg shadow-lg border overflow-hidden">
-      <div className="p-2 border-b bg-gray-50">
-        <p className="text-sm font-medium text-gray-700">INPUT TYPES</p>
+    <div className="absolute mt-2 w-[292px] bg-white rounded-lg shadow-lg border overflow-hidden">
+      <div className="h-9 px-4 py-2 flex items-center bg-[#FAFBFC] border-b">
+        <p className="text-xs font-medium text-[#6E7781] uppercase">Input Types</p>
       </div>
-      <div className="p-2">
+
+      <div className="p-2 space-y-1">
         <button
           onClick={() => onSelect('SHORT_ANSWER')}
           className="w-full px-3 py-2 text-left hover:bg-gray-50 rounded flex items-center gap-3"

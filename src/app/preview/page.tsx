@@ -75,28 +75,29 @@ export default function PreviewPage() {
             </div>
           </div>
 
-          {hasQuestions ? (
+          {hasQuestions && (
             <>
-              <div className="space-y-6">
+              <div>
                 {form.questions
                   .slice()
                   .sort((a, b) => a.sequence - b.sequence)
                   .map((question: FormQuestion) => (
-                    <PreviewQuestion
-                      key={`question-${question.id}`}
-                      question={question}
-                      onChange={(value) => updateAnswer(question.id, value)}
-                    />
+                    <div key={`question-${question.id}`} className="mb-6">
+                      <PreviewQuestion
+                        question={question}
+                        onChange={(value) => updateAnswer(question.id, value)}
+                      />
+                    </div>
                   ))}
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 flex justify-end">
                 <button
                   onClick={handleSubmit}
                   disabled={!hasAnswers || isSubmitting}
-                  className={`px-4 py-2 rounded-md flex items-center gap-2 ${
+                  className={`h-8 px-4 py-1.5 rounded-xl flex items-center gap-2.5 shadow-[0px_12px_12px_-6px_#00000008,0px_6px_6px_-3px_#00000008,0px_3px_3px_-1.5px_#00000008] ${
                     hasAnswers && !isSubmitting
-                      ? 'bg-green-500 text-white hover:bg-green-600' 
+                      ? 'bg-[#00AA45] hover:bg-[#009E40] text-white' 
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
                 >
@@ -114,10 +115,6 @@ export default function PreviewPage() {
                 </button>
               </div>
             </>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No questions added yet
-            </div>
           )}
         </div>
       </div>

@@ -215,12 +215,21 @@ export default function FormBuilder() {
             )}
           </div>
 
-          <button 
+          <button
+            className={`px-4 py-2 text-sm rounded-md flex items-center gap-2 font-inter text-[14px] font-semibold leading-5 text-center underline-offset-[from-font] decoration-skip-ink-none ${
+              form.questions.length === 0
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-[#0D0D0D] hover:bg-gray-100'
+            }`}
             onClick={handlePublish}
             disabled={form.questions.length === 0}
-            className="h-8 px-4 py-1.5 rounded-xl flex items-center gap-1 shadow-[0px_12px_12px_-6px_#00000008,0px_6px_6px_-3px_#00000008,0px_3px_3px_-1.5px_#00000008] bg-[#00AA45] border border-[#1E874B] hover:bg-[#1E874B] text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Publish form
+            <span className="flex items-center gap-2">
+              Preview
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </span>
           </button>
         </div>
     </>

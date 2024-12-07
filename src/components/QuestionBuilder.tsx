@@ -83,8 +83,11 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
             </button>
 
             {isMenuOpen && (
-              <div className="absolute top-full right-0 mt-1 w-64 bg-white rounded-md shadow-lg border border-[#E1E4E8] z-50">
-                <div className="p-2">
+              <div className="absolute top-full right-0 mt-1 w-[292px] bg-white rounded-md shadow-lg border border-[#E1E4E8] z-50">
+
+                  <div className="h-9 px-4 py-2 flex items-center text-xs font-medium text-[#6E7781] uppercase bg-[#FAFBFC] rounded-t-lg">
+                    Input Types
+                  </div>
                   <div className="space-y-1">
                     {['SHORT_ANSWER', 'LONG_ANSWER', 'SINGLE_SELECT', 'NUMBER', 'URL'].map((type) => (
                       <button
@@ -101,7 +104,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
                     ))}
                   </div>
                 </div>
-              </div>
+
             )}
           </div>
 
