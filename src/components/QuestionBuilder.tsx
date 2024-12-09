@@ -14,6 +14,7 @@ interface QuestionBuilderProps {
   dragHandleProps?: DraggableProvidedDragHandleProps;
   type: QuestionType;
   onTypeChange: (type: QuestionType) => void;
+  isPublishAttempted?: boolean;
 }
 
 export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
@@ -23,6 +24,7 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
   dragHandleProps,
   type,
   onTypeChange,
+  isPublishAttempted = false
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -67,7 +69,9 @@ export const QuestionBuilder: React.FC<QuestionBuilderProps> = ({
         <input
           type="text"
           placeholder="Write a question"
-          className="flex-1 text-sm font-semibold focus:outline-none bg-transparent leading-5 font-inter text-left underline-offset-[from-font] decoration-skip-ink-none placeholder:text-[#959DA5] text-[#0D0D0D]"
+          className={`flex-1 text-sm font-semibold focus:outline-none bg-transparent leading-5 font-inter text-left underline-offset-[from-font] decoration-skip-ink-none ${
+            isPublishAttempted && !question.question.trim() ? 'placeholder:text-[#EB5757]' : 'placeholder:text-[#959DA5]'
+          } text-[#0D0D0D]`}
           value={question.question}
           onChange={(e) =>
             onQuestionChange({ ...question, question: e.target.value })

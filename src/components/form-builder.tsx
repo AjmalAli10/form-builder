@@ -18,6 +18,7 @@ export default function FormBuilder() {
   const reorderQuestions = useFormStore((state) => state.reorderQuestions);
   const updateQuestion = useFormStore((state) => state.updateQuestion);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isPublishAttempted, setIsPublishAttempted] = useState(false);
   const router = useRouter();
   const saveDraft = useFormStore((state) => state.saveDraft);
   const loadDraft = useFormStore((state) => state.loadDraft);
@@ -55,6 +56,15 @@ export default function FormBuilder() {
 
   const handlePublish = async () => {
     try {
+      setIsPublishAttempted(true);
+      // Check if any question is empty
+      const hasEmptyQuestions = form.questions.some(q => !q.question.trim());
+      
+      if (hasEmptyQuestions) {
+        toast.error('Please fill in all questions before publishing');
+        return;
+      }
+      
       router.push('/preview');
     } catch (error) {
       console.error('Error publishing form:', error);
@@ -73,7 +83,6 @@ export default function FormBuilder() {
   const sortedQuestions = [...form.questions].sort((a, b) => a.sequence - b.sequence);
 
   return (
-
       <>
         <FormHeader />
         
@@ -95,6 +104,7 @@ export default function FormBuilder() {
                               dragHandleProps={provided.dragHandleProps || undefined}
                               question={question}
                               onQuestionChange={(updates) => handleQuestionChange(question.id, updates)}
+                              isPublishAttempted={isPublishAttempted}
                             />
                           </div>
                         )}
